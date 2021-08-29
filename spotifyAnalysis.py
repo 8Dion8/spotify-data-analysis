@@ -2,7 +2,6 @@ import json, math, datetime, textwrap
 import matplotlib.pyplot as plt
 import matplotlib.ticker as plticker
 import matplotlib as mpl
-import numpy as np
 
 #print(mpl.rcParams.keys())
 
@@ -109,7 +108,7 @@ artistsByTimesListenedTo = {k: v for k, v in sorted(artists.items(), key=lambda 
 songsByListeningTime     = {k: v for k, v in sorted(tracks.items(),  key=lambda item: item[1]["msListenedTo"],    reverse=True)}
 songsByTimesListenedTo   = {k: v for k, v in sorted(tracks.items(),  key=lambda item: item[1]["timesListenedTo"], reverse=True)}
 
-print(songsByTimesListenedTo.items())
+#print(songsByTimesListenedTo.items())
 
 HOURSLISTENEDTO = math.floor(timeListened/1000/60/60)
 
