@@ -1,4 +1,4 @@
-import json, math, datetime
+import json, math, datetime, textwrap
 import matplotlib.pyplot as plt
 import matplotlib.ticker as plticker
 import matplotlib as mpl
@@ -90,10 +90,26 @@ for track in data:
             "timesListenedTo":1
         }
 
+    trackID = textwrap.fill(track["trackName"] + " - " + track["artistName"], 15).replace("$", "\$")
 
-#print(artists.items())
+    if trackID in tracks:
+        tracks[trackID]["msListenedTo"] += track["msPlayed"]
+        tracks[trackID]["timesListenedTo"] += 1
+    else:
+        tracks[trackID] = {
+            "msListenedTo":track["msPlayed"],
+            "timesListenedTo":1
+        }
+
+
+
 artistsByListeningTime   = {k: v for k, v in sorted(artists.items(), key=lambda item: item[1]["msListenedTo"],    reverse=True)}
 artistsByTimesListenedTo = {k: v for k, v in sorted(artists.items(), key=lambda item: item[1]["timesListenedTo"], reverse=True)}
+
+songsByListeningTime     = {k: v for k, v in sorted(tracks.items(),  key=lambda item: item[1]["msListenedTo"],    reverse=True)}
+songsByTimesListenedTo   = {k: v for k, v in sorted(tracks.items(),  key=lambda item: item[1]["timesListenedTo"], reverse=True)}
+
+print(songsByTimesListenedTo.items())
 
 HOURSLISTENEDTO = math.floor(timeListened/1000/60/60)
 
@@ -107,9 +123,9 @@ AVGLISTENINGTIMEPDAY = math.floor(HOURSLISTENEDTO / TIMESPAN * 10) / 10
 
 print(f"on average, {AVGLISTENINGTIMEPDAY} h per day")
 
-open("/home/dion/Desktop/MyData/ArtistsData.json", "w").write(json.dumps(str(artistsByListeningTime)))
+#open("/home/dion/Desktop/MyData/ArtistsData.json", "w").write(json.dumps(str(artistsByListeningTime)))
 
-fig, axs = plt.subplots(2,2,facecolor=MAINCOLOR)
+fig0, axs0 = plt.subplots(2,2,facecolor=MAINCOLOR)
 
 topArtistsByListeningTime   = {k: artistsByListeningTime[k]   for k in list(artistsByListeningTime  )[:10]}
 topArtistsByTimesListenedTo = {k: artistsByTimesListenedTo[k] for k in list(artistsByTimesListenedTo)[:10]}
@@ -118,48 +134,76 @@ topArtistsByTimesListenedTo = {k: artistsByTimesListenedTo[k] for k in list(arti
 artistsListeningTimeX = topArtistsByListeningTime.keys()
 artistsListeningTimeY = [i["msListenedTo"]/1000/60/60 for i in topArtistsByListeningTime.values()]
 
-axs[0, 0].yaxis.set_major_locator(loc)
-axs[0, 0].set_facecolor(MAINCOLOR)
-axs[0, 0].set_title("Top 10 Artists By Listening Time")
+axs0[0, 0].yaxis.set_major_locator(loc)
+axs0[0, 0].set_facecolor(MAINCOLOR)
+axs0[0, 0].set_title("Top 10 Artists By Listening Time")
 
-axs[0, 0].bar(artistsListeningTimeX, artistsListeningTimeY, color=PALLETTE)
+axs0[0, 0].bar(artistsListeningTimeX, artistsListeningTimeY, color=PALLETTE)
 
 
 
 artistsTimesListenedToX = topArtistsByTimesListenedTo.keys()
 artistsTimesListenedToY = [i["timesListenedTo"] for i in topArtistsByTimesListenedTo.values()]
 
-#axs[1, 0].yaxis.set_major_locator(loc)
-axs[1, 0].set_facecolor(MAINCOLOR)
-axs[1, 0].set_title("Top 10 Artists By Times Listened To")
+#axs0[1, 0].yaxis.set_major_locator(loc)
+axs0[1, 0].set_facecolor(MAINCOLOR)
+axs0[1, 0].set_title("Top 10 Artists By Times Listened To")
 
-axs[1, 0].bar(artistsTimesListenedToX, artistsTimesListenedToY, color=PALLETTE)
+axs0[1, 0].bar(artistsTimesListenedToX, artistsTimesListenedToY, color=PALLETTE)
 
 
 
 monthsListeningTimeX = months.keys()
 monthsListeningTimeY = [i["msListenedTo"]/1000/60/60 for i in months.values()]
 
-axs[0, 1].yaxis.set_major_locator(loc)
-axs[0, 1].set_facecolor(MAINCOLOR)
-axs[0, 1].set_title("Hours Listened To Each Month")
+axs0[0, 1].yaxis.set_major_locator(loc)
+axs0[0, 1].set_facecolor(MAINCOLOR)
+axs0[0, 1].set_title("Hours Listened To Each Month")
 
 
-axs[0, 1].bar(monthsListeningTimeX, monthsListeningTimeY, color=PALLETTE)
+axs0[0, 1].bar(monthsListeningTimeX, monthsListeningTimeY, color=PALLETTE)
 
 
 
 monthsTimesListenedToX = list(months.keys())
 monthsTimesListenedToY = [i["timesListenedTo"] for i in months.values()]
 
-#axs[1, 1].yaxis.set_major_locator(loc)
-axs[1, 1].set_facecolor(MAINCOLOR)
-axs[1, 1].set_title("Tracks Listened To Each Month")
+#axs0[1, 1].yaxis.set_major_locator(loc)
+axs0[1, 1].set_facecolor(MAINCOLOR)
+axs0[1, 1].set_title("Tracks Listened To Each Month")
 
-axs[1, 1].bar(monthsTimesListenedToX, monthsTimesListenedToY, color=PALLETTE)
+axs0[1, 1].bar(monthsTimesListenedToX, monthsTimesListenedToY, color=PALLETTE)
 
 
 
+
+
+fig1, axs1 = plt.subplots(2,1,facecolor=MAINCOLOR)
+
+topSongsByListeningTime   = {k: songsByListeningTime[k]   for k in list(songsByListeningTime)[:10]  }
+topSongsByTimesListenedTo = {k: songsByTimesListenedTo[k] for k in list(songsByTimesListenedTo)[:10]}
+
+
+songsListeningTimeX = topSongsByListeningTime.keys()
+songsListeningTimeY = [i["msListenedTo"]/1000/60/60 for i in topSongsByListeningTime.values()]
+
+axs1[0].set_facecolor(MAINCOLOR)
+axs1[0].set_title("Top Tracks By Listening Times")
+
+axs1[0].bar(songsListeningTimeX, songsListeningTimeY, color = PALLETTE)
+
+
+
+songsTimesListenedToX = topSongsByTimesListenedTo.keys()
+songsTimesListenedToY = [i["timesListenedTo"] for i in topSongsByTimesListenedTo.values()]
+
+axs1[1].set_facecolor(MAINCOLOR)
+axs1[1].set_title("Top Tracks By Times Listened To")
+
+axs1[1].bar(songsTimesListenedToX, songsTimesListenedToY, color=PALLETTE)
+
+
+#plt.tight_layout()
 
 plt.show()
 
